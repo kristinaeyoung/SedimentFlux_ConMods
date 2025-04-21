@@ -1,4 +1,4 @@
-plot,Date,Recorder,Observer,Quadrant,Zone,Litt.depth,month,conmod,disturbed,seeded,wateredJul2012
+plot,Date,Recorder,Observer,Quadrant,Zone,Litt.depth,month,conmod,disturbed,seeded,wateredJul2012 
 601,10/26/14,SM,SF,N,Inner,2,10,Fence,TRUE,TRUE,FALSE
 601,10/26/14,SM,SF,N,Outer,0.5,10,Fence,TRUE,TRUE,FALSE
 601,10/26/14,SM,SF,E,Inner,0.1,10,Fence,TRUE,TRUE,FALSE
