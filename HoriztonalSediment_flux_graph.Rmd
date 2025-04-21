@@ -82,7 +82,7 @@ spacing_plot <- ggplot(twelve, aes(x = gap, y = hflux_cm8, color = ssr)) +
     x = "Spacing (m)",
     y = "Horizontal Sediment Flux\n (g m⁻¹ day⁻¹)",
     colour = "Shear Stress\n Ratio"
-  ) +
+  ) + 
   scale_y_continuous(breaks = seq(0, 50000, by = 10000)) +
   guides(colour = guide_colourbar(barheight = 14)) +
   custom_theme
