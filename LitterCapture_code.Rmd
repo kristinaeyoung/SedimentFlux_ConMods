@@ -1,0 +1,132 @@
+# Introduction
+# This script analyzes the distribution of litter depth in different treatment types over two sampling periods.
+# It generates Figure 7, which presents a boxplot illustrating the distribution of litter depth (in mm) by treatment type (ConMod or Bare) for June 2014 and October 2014.
+# The boxplots represent the median, interquartile range, and outliers for each treatment group, with jittered points displaying individual data values.
+# Statistical comparisons were conducted using one-way ANOVA, and p-values indicating significant differences between treatment groups are displayed as significance stars (****).
+# A p-value less than 0.05 is considered statistically significant. See Table S1 for full model outputs.
+
+# Load required libraries
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(broom)
+library(car)  # For Levene's Test
+library(ggpubr)  # For enhanced ggplot2 capabilities
+library(dunn.test)
+library(kableExtra)
+
+# Load dataset
+# Data is "litter_capture_data.csv"
+X1_dat <- litter_capture_data  # Ensure this dataset is available before running
+
+# Plot Litt.depth by conmod
+ggplot(X1_dat, aes(x = conmod, y = Litt.depth)) +
+  geom_boxplot(fill = "skyblue", color = "black") +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Litt.depth by conmod",
+    x = "Conmod",
+    y = "Litt.depth"
+  )
+
+# Check unique values in conmod column
+unique(X1_dat$conmod)
+
+# Extract rows where conmod is "Salsola"
+salsola_rows <- X1_dat[X1_dat$conmod == "Salsola", ]
+
+# Filter dataset based on specific conditions
+conmod <- X1_dat %>%
+  filter(
+    conmod != "Salsola",             # Exclude "Salsola"
+    disturbed == FALSE,               # Only undisturbed rows
+    seeded == FALSE,                  # Only unseeded rows
+    wateredJul2012 == FALSE,          # Only non-watered rows
+    Zone == "Inner"                   # Only "Inner" zone
+  )
+
+# Rename "Fence" to "ConMod" in conmod column
+conmod <- conmod %>%
+  mutate(conmod = ifelse(conmod == "Fence", "ConMod", conmod))
+
+# Convert and format Date column
+conmod <- conmod %>%
+  mutate(
+    Date = mdy(Date),  # Convert to Date format
+    Month_Year = format(Date, "%B %Y")  # Format as "Month Year"
+  )
+
+# Summarize Litt.depth by plot and Date
+summed_Litt_depth <- conmod %>%
+  group_by(plot, Month_Year, conmod) %>%
+  summarise(total_Litt_depth = sum(Litt.depth, na.rm = TRUE), .groups = 'drop')
+
+# Boxplot with statistical comparison
+ggplot(summed_Litt_depth, aes(x = conmod, y = total_Litt_depth)) +
+  geom_boxplot(fill = "#EDC9Af", color = "#C97C5D", alpha = 0.8, outlier.shape = NA) +
+  geom_point(
+    position = position_jitter(width = 0.2, height = 0.2),
+    color = "#C97C5D",
+    alpha = 0.7,
+    size = 2
+  ) +
+  facet_grid(. ~ Month_Year) +
+  theme_minimal(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title = element_text(size = 16),
+    strip.text = element_text(size = 16),
+    strip.background = element_blank(),
+    axis.line = element_line(color = "black", size = 0.8),
+    panel.spacing = unit(1, "lines")
+  ) +
+  labs(
+    x = "Treatment Type",
+    y = "Litter Depth (mm)"
+  ) +
+  stat_compare_means(
+    aes(group = conmod), 
+    method = "aov",  # Perform ANOVA
+    label = "p.signif",  # Show significance stars or p-values
+    size = 5, 
+    color = "black"
+  )
+
+# Run one-way ANOVA for each Month_Year group
+anova_results <- summed_Litt_depth %>%
+  group_by(Month_Year) %>%
+  do(tidy(aov(total_Litt_depth ~ conmod, data = .)))
+
+# Print ANOVA results
+print(anova_results)
+
+# Format ANOVA results for better readability
+anova_results %>%
+  select(Month_Year, term, df, sumsq, meansq, statistic, p.value) %>%
+  mutate(
+    p.value = round(p.value, 3),
+    statistic = round(statistic, 2),
+    meansq = round(meansq, 2),
+    sumsq = round(sumsq, 2)
+  ) %>%
+  kable("html", escape = FALSE, col.names = c("Month/Year", "Term", "DF", "Sum Sq", "Mean Sq", "F-Statistic", "P-Value")) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  column_spec(7, width = "3cm")
+
+# Compute mean and standard error for each treatment type per period
+summarized_litter <- summed_Litt_depth %>%
+  group_by(conmod, Month_Year) %>%
+  summarise(
+    mean_Litt_depth = mean(total_Litt_depth, na.rm = TRUE),
+    SE_Litt_depth = sd(total_Litt_depth, na.rm = TRUE) / sqrt(n()),
+    .groups = 'drop'
+  )
+
+# Print summarized litter depth
+print(summarized_litter)
+
+

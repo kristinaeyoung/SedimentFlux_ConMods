@@ -1,0 +1,51 @@
+# Title: "Latin Hypercube code for ConMod Manuscript"
+# Author: "Kristina Young"
+# Date Started: "2023-04-14"
+# Date Updated: "2023-07-31"
+
+# Introduction
+# This script generates 1000 unique sets of height, spacing, and porosity using a Latin hypercube design.
+# We created these datasets using the R package `lhs` (Carnell 2022) in R (R Core Team 2023, version 2023.12.1).
+# The generated sets are used to parameterize the model by transforming uniformly sampled values into desired distributions.
+
+##### LATIN HYPERCUBE DATA FOR GAP ANALYSIS #####
+
+# Install and load required package
+if (!require(lhs)) install.packages("lhs", dependencies=TRUE)
+library(lhs)
+
+# Define Parameters
+# Parameter 1 (y[,1]): uniform(0.09, 1) shear velocity (u*) (20-90% porosity)
+# Parameter 2 (y[,2]): uniform(0.180, 0.500) Height (m)
+# Parameter 3 (y[,3]): uniform(0.360, 1.000) Width (m)
+# Parameter 4 (y[,4]): uniform(0, 30) distance between conmods (GAP size) (m)
+
+set.seed(1234)  # Ensure reproducibility
+N <- 1000  # Number of samples
+
+# Generate Latin Hypercube Samples
+x <- randomLHS(N, 4)
+
+# Visualize the generated uniform distributions
+par(mfrow=c(2,2))
+apply(x, 2, hist)
+
+# Transform to desired distributions
+y <- x
+y[,1] <- qunif(x[,1], 0.09, 1)  # Shear velocity (u*)
+y[,2] <- qunif(x[,2], 0.18, 0.5)  # Height (m)
+y[,3] <- qunif(x[,3], 0.36, 1.0)  # Width (m)
+y[,4] <- qunif(x[,4], 0, 30)  # GAP size (m)
+
+# Visualize transformed distributions
+par(mfrow=c(2,2))
+apply(y, 2, hist)
+
+# Sample 1000 rows randomly from the transformed data
+independent_variables <- y[sample(nrow(y), 1000), ]
+
+# Save the generated dataset to a CSV file
+write.csv(independent_variables, "latin_hypercube.csv", row.names=FALSE)
+
+# Print completion message
+cat("Latin hypercube dataset successfully generated and saved as 'latin_hypercube.csv'\n")

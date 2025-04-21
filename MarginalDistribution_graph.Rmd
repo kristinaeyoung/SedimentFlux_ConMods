@@ -1,0 +1,85 @@
+
+---
+  # title: "Marginal distribution graphs"
+  # author: "Kristina Young"
+  # date STARTED: "2024-02-20"
+  # date UPDATED: "2025-03-15"
+  ---
+
+# This script analyzes the sensitivity of horizontal sediment flux predictions to height, 
+# porosity, and spacing at a wind speed of 12 m/s using marginal distributions. The dataset 
+# is loaded and filtered, and three key visualizations are generated to assess model sensitivity. 
+# Each plot includes a marginal distribution (black line) to show the probability density of 
+# observed values 
+# This script was used to create Figure 5 in Young et al. 2025 
+  
+  
+  
+# Load required libraries
+library(ggplot2)
+library(ggpubr)
+library(dplyr)
+
+# Load dataset
+conmod_full_dataset <- read.csv("conmod_full_dataset.csv")
+
+# Filter data for wind speed of 12 m/s
+twelve <- subset(conmod_full_dataset, windspeed == 12)
+# Graphing probability by height
+height_graph <- ggplot(twelve, aes(x = hgt, y = reduction_by_height), size = 1) + 
+  geom_point() +
+  theme_bw() +
+  theme(axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9, angle = 45, hjust = 1),
+        axis.title.y = element_text(size=9),
+        axis.text.y = element_text(size=9),
+        axis.line = element_line(colour = "black"),
+        strip.text.y = element_text(size = 12),
+        strip.background.x = element_blank(),
+        strip.background.y = element_blank(),
+        strip.text.x = element_text(size = 9),
+        strip.background = element_blank(),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 9))
+
+height_graph
+
+# Graphing probability by porosity
+porosity_graph <- ggplot(twelve, aes(x = porosity, y = reduction_by_porosity), size = 1) + 
+  geom_point() +
+  theme_bw() +
+  theme(axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9, angle = 45, hjust = 1),
+        axis.title.y = element_text(size=9),
+        axis.text.y = element_text(size=9),
+        axis.line = element_line(colour = "black"),
+        strip.text.y = element_text(size = 12),
+        strip.background.x = element_blank(),
+        strip.background.y = element_blank(),
+        strip.text.x = element_text(size = 9),
+        strip.background = element_blank(),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 9))
+
+porosity_graph
+
+# Graphing probability by gap size (spacing)
+gap_graph <- ggplot(twelve, aes(x = gap, y = reduction_by_gapsize), size = 1) + 
+  geom_point() +
+  theme_bw() +
+  theme(axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9, angle = 45, hjust = 1),
+        axis.title.y = element_text(size=9),
+        axis.text.y = element_text(size=9),
+        axis.line = element_line(colour = "black"),
+        strip.text.y = element_text(size = 12),
+        strip.background.x = element_blank(),
+        strip.background.y = element_blank(),
+        strip.text.x = element_text(size = 9),
+        strip.background = element_blank(),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 9))
+
+gap_graph
+
+

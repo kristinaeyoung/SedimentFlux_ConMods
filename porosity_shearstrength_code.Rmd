@@ -1,0 +1,66 @@
+# Title: "Porosity and Shear Velocity Analysis"
+# Author: "Kristina Young"
+# Date Started: "2023-05-23"
+# Date Updated: ""
+# Description: This script analyzes the relationship between porosity and shear velocity ratio, based on published literature.
+# Studies referenced: Lima et al. (2017), Li & Sherman (2015), Bradley & Mulhearn (1983).
+# The equation used is y = -0.17 + 1.3x from n = 10 data points.
+# The equation was constrained to fit a porosity of 100% with a shear velocity ratio of 1.
+# Porosities resulting in negative shear velocity ratios were excluded.
+
+# Load required libraries
+library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+
+# Define function to extract regression equation
+regression_equation <- function(x, y) {
+  model <- lm(y ~ x)
+  as.character(
+    as.expression(
+      substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                 list(a = format(coef(model)[1], digits = 4),
+                      b = format(coef(model)[2], digits = 4),
+                      r2 = format(summary(model)$r.squared, digits = 3)))
+    )
+  )
+}
+
+# Load dataset (Ensure "velocity_pore_size.csv" is in the working directory)
+velocity_pore_size <- read.csv("velocity_pore_size.csv")
+
+# Generate graph to visualize porosity by shear stress
+porosity_graph <- ggplot(velocity_pore_size, aes(x = Value, y = Porosity)) + 
+  geom_point(size = 1) +
+  stat_regline_equation(label.y = 0.1, aes(label = ..eq.label..)) +
+  stat_regline_equation(label.y = 0.5, aes(label = ..rr.label..)) +
+  theme_bw() +
+  theme(
+    axis.title.x = element_text(size = 9),
+    axis.text.x = element_text(size = 9, angle = 45, hjust = 1),
+    axis.title.y = element_text(size = 9),
+    axis.text.y = element_text(size = 9),
+    axis.line = element_line(colour = "black"),
+    strip.text.y = element_text(size = 12),
+    strip.background.x = element_blank(),
+    strip.background.y = element_blank(),
+    strip.text.x = element_text(size = 9),
+    strip.background = element_blank(),
+    legend.text = element_text(size = 9),
+    legend.title = element_text(size = 9)
+  )
+
+# Print graph
+print(porosity_graph)
+
+# Linear model for porosity and shear velocity ratio
+lmporosity <- lm(Value ~ Porosity, data = velocity_pore_size)
+summary(lmporosity)
+
+# Equations Used:
+# y = 0.093 + 0.85x
+# x = ((1000*y)-93)/850 from Symbolab
+
+# Data constraints:
+# Lowest porosity = 30% (y), corresponding shear stress ratio = 0.24 (x)
+# Highest porosity = 90% (y), corresponding shear stress ratio = 0.95 (x)

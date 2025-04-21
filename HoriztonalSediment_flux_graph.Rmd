@@ -1,0 +1,93 @@
+
+# -----------------------------------------------------------
+# Title: CONMOD Data Visualization - Sediment Flux Analysis
+# Author: [Your Name]
+# Date Started: 2024-02-20
+# Last Updated: 2025-03-15
+# -----------------------------------------------------------
+# Description:
+# This script is for Figure 6 in Young et al. 2025 and visualizes the modeled horizontal sediment flux (g m⁻¹ day⁻¹) 
+# at a wind speed of 12 m/s under varying conditions of height, porosity, 
+# and spacing. The plots use a color gradient to represent the shear stress 
+# ratio (us*/u*O)x=0, where darker blue colors indicate lower shear stress, 
+# and lighter yellow colors indicate higher shear stress. 
+# The three plots are arranged to demonstrate the increasing influence of 
+# height < porosity < spacing on sediment transport rates.
+# -----------------------------------------------------------
+
+# Load required libraries
+library(ggplot2)
+library(dplyr)
+
+# Load dataset
+conmod_full_dataset <- read.csv("conmod_full_dataset.csv")
+
+# Filter dataset for wind speed of 12 m/s
+twelve <- subset(conmod_full_dataset, windspeed == 12)
+
+# Convert porosity to percentage
+twelve$porosity_percent <- twelve$porosity * 100
+
+# Define a custom theme for consistent styling
+custom_theme <- theme_bw() +
+  theme(
+    axis.title.x = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    panel.grid.major = element_blank(),
+    axis.line = element_line(colour = "black"),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 16)
+  )
+
+# -------------------------------
+# Plot 1: Sediment Flux by Height
+# -------------------------------
+height_plot <- ggplot(twelve, aes(x = hgt, y = hflux_cm8, color = ssr)) +
+  geom_point(size = 2) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  labs(
+    x = "Height (m)",
+    y = "Horizontal Sediment Flux\n (g m⁻¹ day⁻¹)",
+    colour = "Shear Stress\n Ratio"
+  ) +
+  scale_y_continuous(breaks = seq(0, 50000, by = 10000)) +
+  guides(colour = guide_colourbar(barheight = 14)) +
+  custom_theme
+
+# -------------------------------
+# Plot 2: Sediment Flux by Porosity
+# -------------------------------
+porosity_plot <- ggplot(twelve, aes(x = porosity_percent, y = hflux_cm8, color = ssr)) +
+  geom_point(size = 2) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  labs(
+    x = "Porosity (%)",
+    y = "Horizontal Sediment Flux\n (g m⁻¹ day⁻¹)",
+    colour = "Shear Stress\n Ratio"
+  ) +
+  scale_x_continuous(breaks = seq(25, 75, by = 10)) +
+  scale_y_continuous(breaks = seq(0, 50000, by = 10000)) +
+  guides(colour = guide_colourbar(barheight = 14)) +
+  custom_theme
+
+# -------------------------------
+# Plot 3: Sediment Flux by Spacing
+# -------------------------------
+spacing_plot <- ggplot(twelve, aes(x = gap, y = hflux_cm8, color = ssr)) +
+  geom_point(size = 2) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  labs(
+    x = "Spacing (m)",
+    y = "Horizontal Sediment Flux\n (g m⁻¹ day⁻¹)",
+    colour = "Shear Stress\n Ratio"
+  ) +
+  scale_y_continuous(breaks = seq(0, 50000, by = 10000)) +
+  guides(colour = guide_colourbar(barheight = 14)) +
+  custom_theme
+
+# Display Plots
+print(height_plot)
+print(porosity_plot)
+print(spacing_plot)
