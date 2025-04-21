@@ -1,6 +1,9 @@
 # SedimentFlux_ConMods
 
 README: ConMod Aeolian Sediment Transport and Litter Retention Data Repository
+
+[![DOI](https://zenodo.org/badge/970281031.svg)](https://doi.org/10.5281/zenodo.15257904)
+
 Overview
 
 This repository contains data and analysis related to the effects of Connectivity Modifiers (ConMods) on aeolian sediment transport and resource retention in dryland environments. ConMods are galvanized mesh structures designed to disrupt sediment transport pathways and enhance site stability by reducing wind-driven soil loss and increasing litter retention. The data and associated scripts provide insights into how ConMod porosity, height, and spacing influence horizontal sediment flux, based on model simulations and field experiments.
